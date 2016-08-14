@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact name="Srun3000:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/Srun3000_jar</output-path>
+    <root id="root">
+      <element id="archive" name="Srun3000.jar">
+        <element id="module-output" name="Srun3000" />
+      </element>
+    </root>
+  </artifact>
+</component>
