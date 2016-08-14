@@ -14,6 +14,14 @@ public class main {
      * @param args
      */
     public static void main(String[] args) {
+
+        try {
+            org.jb2011.lnf.beautyeye.BeautyEyeLNFHelper.launchBeautyEyeLNF();
+            UIManager.put("RootPane.setupButtonVisible",false);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         EventQueue.invokeLater(new Runnable() {
             /**
              * 多线程相关的函数。。还不懂,只会用

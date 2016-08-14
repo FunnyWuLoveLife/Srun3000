@@ -38,13 +38,14 @@ public class Connecter {
         String urlencode_pwd = null;
         String urlencode_acid = null;
         String urlencode_mac = null;
+        String response = null;//返回字符串
         try {
             urlencode_username = URLEncoder.encode(user.getUsername(), "utf-8");//制将字符串转换为 application/x-www-form-urlencoded 格式
             urlencode_pwd = URLEncoder.encode(user.getPassword(), "utf-8");//同上
             urlencode_acid = URLEncoder.encode(acid, "utf-8");//同上
             urlencode_mac = URLEncoder.encode(mac_address, "utf-8");//同上
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            response = "登录发生了一点小小的错误-_-" + e.toString();
         }
         //组建URL数据链
         String data =
@@ -57,11 +58,11 @@ public class Connecter {
                         + "&mac="
                         + urlencode_mac;
 
-        String response = null;
+
         try {
             response = HttpPost("http://172.16.154.130:" + port + "/cgi-bin/srun_portal", data);//执行post方法
         } catch (Exception e) {
-            e.printStackTrace();
+            response = "登录发生了一点小小的错误-_-\n错误信息如下：" + e.toString();
         }
 
         if (response.contains("login_ok")) {    //验证post方法的返回值
@@ -118,4 +119,25 @@ public class Connecter {
         }
         return new String(buffer, "UTF-8");
     }
+
+    public static String logout(User user) {
+        user.userEncode();
+        String urlencode_usr = null;
+        String urlencode_acid = null;
+        String urlencode_mac = null;
+        String response = null;
+        try {
+            urlencode_usr = URLEncoder.encode(user.getUsername(), "utf-8");
+            urlencode_acid = URLEncoder.encode(acid, "utf-8");
+            urlencode_mac = URLEncoder.encode(mac_address, "utf-8");
+            response = HttpPost("http://172.16.154.130:" + port + "/cgi-bin/srun_portal", "action=logout&ac_id=" + urlencode_acid + "&username=" + urlencode_usr + "&mac=" + urlencode_mac + "&type=2");
+        } catch (UnsupportedEncodingException e) {
+            response = "注销发生了一点小小的错误-_-" + e.toString();
+        } catch (Exception e) {
+            response = "注销发生了一点小小的错误-_-" + e.toString();
+        }
+        isLinked = false;
+        return response;
+    }
+
 }
