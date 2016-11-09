@@ -1,111 +1,250 @@
 package com.srun3000.View;
 
+import com.srun3000.Config;
 import com.srun3000.Controller.Connecter;
 import com.srun3000.Model.User;
+import com.srun3000.util.StringUtil;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Desktop;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+
+import javax.swing.*;
 
 /**
- * 登录框的三个组件（用户名文本框，密码文本框，登录按钮）
- * Created by xbc922 on 2016/8/13.
+ * 登录框的三个组件（用户名文本框，密码文本框，登录按钮） Created by xbc922 on 2016/8/13.
  */
-public class LoginComponent extends JPanel {
+public class LoginComponent extends JPanel implements ActionListener
+{
 
-    User user = null;//定义一个用户全局域
-    JTextArea textArea = null;
+	User user = null;// 定义一个用户全局域
+	Config config = null;
 
-    /**
-     * 登录面板构造器，完成登录面板会话和监听登录按钮
-     */
-    public LoginComponent() {
-        setFont(new Font("宋体", Font.BOLD, 40));
-        //设置整个显示框为上下部分，上部分显示输入面板展示（用户名标签，用户名输入框，密码标签，密码输入框，和两个按钮）
-        //下部分又分为两个区域，上部分显示选项，下部分显示信息
-        setLayout(new GridLayout(2, 1));
+	private JPanel msgPanel;
+	private JPanel loginPanel;
 
-        //选项面板占据,底部bottomPanel面板的1/2，相当于占据整个框架的1/4
-        JPanel bottomPanel = new JPanel();//底部面板包括信息显示区域和选项区域
-        bottomPanel.setLayout(new GridLayout(2, 1));
+	// 登录
+	private JButton btn_login;
+	private JButton btn_logout;
+	private JTextField tf_username;
+	private JTextField tf_password;
+	private JCheckBox cb_rem_password;
+	private JCheckBox cb_auto_login;
 
-        //文本框占据,底部bottomPanel面板的1/2，相当于占据整个框架的1/4
-        textArea = new JTextArea(12, 12);//信息展示区域
-        textArea.setFont(new Font("宋体", Font.BOLD, 40));
-        textArea.setLineWrap(true);//让文本区域自动换行
-        textArea.setWrapStyleWord(true);//激活断行不断字
+	// 信息展示
+	private JLabel ret_la_ip_address;
+	private JLabel ret_la_connectTime;
 
-        //选项面板使用网格布局管理器，内部每个面板占据一个位置
-        JPanel optionPanel = new JPanel();//选项区域面板
-        optionPanel.setLayout(new GridLayout(2, 2));
+	/**
+	 * 登录面板构造器，完成登录面板会话和监听登录按钮
+	 */
+	public LoginComponent()
+	{
+		config = new Config();
+		initView();
+		writeConfigToWindow();
 
-        //输入面板使用网格布局管理器定义三行1列，内部每个面板占据一行
-        JPanel inputPanel = new JPanel();//定义输入面板
-        inputPanel.setLayout(new GridLayout(3, 1));//将输入面板设置为网格布局，设置为3行1列
+		if (config.isAUTO_LOGIN())
+		{
+			login();
+		}
+	}
 
-        //输入你面板内部的三个面板使用默认的流布局管理器，以便让所有内容居中
-        JPanel usernamePanel = new JPanel();//定义用户名面板
-        JPanel passwordPanel = new JPanel();//密码面板
-        JPanel buttonpanel = new JPanel();//按钮面板
+	private void initView()
+	{
+		setLayout(new GridLayout(2, 1));
 
-        //输入模块
-        JLabel usernameLabel = new JLabel("用户名:");
-        usernameLabel.setFont(new Font("宋体", Font.BOLD, 40));
-        usernamePanel.add(usernameLabel);//添加用户名标签
-        JTextField usernameText = new JTextField();//定义用户名输出框
-        usernameText.setColumns(10);//设置输入框长度
-        usernameText.setFont(new Font("宋体", Font.BOLD, 40));//设置输入框字体大小
-        usernamePanel.add(usernameText);//像面板中添加组件
-        JLabel passwordLabel = new JLabel("密  码:");//密码标签
-        passwordLabel.setFont(new Font("宋体", Font.BOLD, 40));
-        passwordPanel.add(passwordLabel);//添加密码标签
-        JPasswordField passwordText = new JPasswordField();//定义
-        passwordText.setFont(new Font("宋体", Font.BOLD, 40));//设置输入框字体大小
-        passwordText.setColumns(10);
-        passwordPanel.add(passwordText);
-        //按钮模块
-        JButton linkbutton = new JButton("连接");//构造一个按钮
-        linkbutton.setFont(new Font("宋体", Font.BOLD, 40));//设置按钮字体大小
-        linkbutton.setEnabled(true);//将按钮设置为可选
-        JButton logoutbutton = new JButton("注销");
-        logoutbutton.setFont(new Font("宋体", Font.BOLD, 40));
-        buttonpanel.add(linkbutton);
-        buttonpanel.add(new Container());//添加占位容器
-        buttonpanel.add(logoutbutton);
-        //将用户名和密码面板添加到输入面板
-        inputPanel.add(usernamePanel);//将用户名面板加入输入面板
-        inputPanel.add(passwordPanel);//将密码面板加入输入面板
-        inputPanel.add(buttonpanel);//将按钮面板添加到输入面板
+		// 初始化登录
+		loginPanel = new JPanel();
+		msgPanel = new JPanel();
 
-        //给linkbutton设置事件监听器
-        linkbutton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                textArea.setText("");
-                user = new User(usernameText.getText(), new String(passwordText.getPassword()));
-//                textArea.append("userName:" + user.getUsername());
-//                textArea.append("\npassword:" + user.getPassword());//测试时功能
-                textArea.append("\n登录返回信息：" + Connecter.Login(user));
-            }
-        });
+		loginPanel.setLayout(null);
+		msgPanel.setLayout(null);
 
-        //添加logout按钮事件监听器
-        logoutbutton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                textArea.setText("");
-                textArea.append("注销结果：" + Connecter.logout(user));
-            }
-        });
+		JLabel lab_username = new JLabel("用户名:");
+		JLabel lab_pwd = new JLabel("密  码:");
+		lab_username.setBounds(30, 40, 60, 30);
+		lab_pwd.setBounds(30, 80, 60, 30);
 
+		tf_username = new JTextField();
+		tf_password = new JPasswordField();
+		tf_username.setBounds(90, 40, 140, 30);
+		tf_password.setBounds(90, 80, 140, 30);
+		tf_username.setText(config.getDEFAULT_USERNAME());
+		tf_password.setText(config.getDEFAULT_PASSWORD());
 
+		cb_rem_password = new JCheckBox("记住密码");
+		cb_auto_login = new JCheckBox("自动登录");
+		JButton serves = new JButton("自助服务");
+		cb_rem_password.setBounds(250, 40, 100, 20);
+		cb_auto_login.setBounds(250, 80, 100, 20);
+		serves.setBounds(250, 115, 100, 20);
 
-        add(inputPanel);
-        bottomPanel.add(new Container());
-        bottomPanel.add(new JScrollPane(textArea));//将选项框添加到底部面板
-        add(bottomPanel);
+		btn_login = new JButton("登录");
+		btn_logout = new JButton("注销");
+		btn_login.setBounds(110, 140, 60, 30);
+		btn_logout.setBounds(180, 140, 60, 30);
 
-    }
+		loginPanel.add(lab_username);
+		loginPanel.add(lab_pwd);
+		loginPanel.add(tf_username);
+		loginPanel.add(tf_password);
+		loginPanel.add(cb_rem_password);
+		loginPanel.add(cb_auto_login);
+		loginPanel.add(btn_login);
+		loginPanel.add(btn_logout);
+		loginPanel.add(serves);
+		// 初始化信息展示
+		JLabel la_ip_address = new JLabel("IP地址:");
+		JLabel la_connectTime = new JLabel("时长:");
+		la_ip_address.setBounds(40, 40, 60, 30);
+		la_connectTime.setBounds(40, 80, 60, 30);
 
+		ret_la_ip_address = new JLabel();
+		ret_la_connectTime = new JLabel();
+		ret_la_ip_address.setBounds(110, 40, 120, 30);
+		ret_la_connectTime.setBounds(110, 80, 120, 30);
+		msgPanel.add(la_ip_address);
+		msgPanel.add(la_connectTime);
+
+		msgPanel.setVisible(false);
+		add(loginPanel);
+		add(msgPanel);
+
+		// 给相应的组件添加监听器
+		btn_login.addActionListener(this);
+		btn_logout.addActionListener(this);
+		cb_rem_password.addActionListener(this);
+		cb_auto_login.addActionListener(this);
+		serves.addActionListener(this);
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e)
+	{
+		switch (e.getActionCommand())
+		{
+		case "登录":
+			login();
+			readConfigOnWindow();
+			config.writeConfigToFile();
+			break;
+		case "注销":
+			String out_username = tf_username.getText();
+			String out_password = tf_password.getText();
+			User out_user = new User(out_username, out_password);
+			if (!Connecter.isLinked)
+			{
+				JOptionPane.showMessageDialog(this, "您还未登录！");
+				break;
+			}
+			String response_logout = Connecter.logout(out_user);
+			if (response_logout.contains("logout_ok"))
+			{
+				JOptionPane.showMessageDialog(this, "注销成功！");
+			} else
+			{
+				JOptionPane.showMessageDialog(this, response_logout, "注销失败",
+						JOptionPane.ERROR_MESSAGE);
+			}
+			msgPanel.setVisible(false);
+			break;
+		case "记住密码":
+			readConfigOnWindow();
+			config.writeConfigToFile();
+			break;
+		case "自动登录":
+			readConfigOnWindow();
+			config.writeConfigToFile();
+			break;
+		case "自助服务":
+			Desktop desktop = Desktop.getDesktop();
+			try
+			{
+				desktop.browse(new URI("http://172.16.154.130:8800/"));
+			} catch (IOException e1)
+			{
+				e1.printStackTrace();
+			} catch (URISyntaxException e1)
+			{
+				e1.printStackTrace();
+			}
+			break;
+		}
+
+	}
+
+	public void readConfigOnWindow()
+	{
+		config.setREM_PASSWORD(cb_rem_password.isSelected());
+		config.setAUTO_LOGIN(cb_auto_login.isSelected());
+
+		if (cb_rem_password.isSelected())
+		{
+			String username = tf_username.getText();
+			String password = tf_password.getText();
+			config.setDEFAULT_USERNAME(username);
+			config.setDEFAULT_PASSWORD(password);
+		} else
+		{
+			config.setDEFAULT_USERNAME("");
+			config.setDEFAULT_PASSWORD("");
+		}
+	}
+
+	public void writeConfigToWindow()
+	{
+		if (config.isREM_PASSWORD())
+		{
+			cb_rem_password.setSelected(true);
+		} else
+		{
+			cb_rem_password.setSelected(false);
+		}
+		if (config.isAUTO_LOGIN())
+		{
+			cb_auto_login.setSelected(true);
+		} else
+		{
+			cb_auto_login.setSelected(false);
+		}
+		tf_username.setText(config.getDEFAULT_USERNAME());
+		tf_password.setText(config.getDEFAULT_PASSWORD());
+	}
+
+	private void login()
+	{
+		String username = tf_username.getText();
+		String password = tf_password.getText();
+		if (StringUtil.isEmpty(username) || StringUtil.isEmpty(password))
+		{
+			JOptionPane.showMessageDialog(this, "用户名或密码不能为空！");
+			return;
+		} else if (!StringUtil.isNumeric(username))
+		{
+			JOptionPane.showMessageDialog(this, "用户名是您的学号！");
+			return;
+		} else if (Connecter.isLinked)
+		{
+			JOptionPane.showMessageDialog(this, "已经登录");
+			return;
+		}
+		User user = new User(username, password);
+		String response_login = Connecter.Login(user);
+		if (response_login.contains("success"))
+		{
+			JOptionPane.showMessageDialog(this, "登录成功！");
+			ret_la_ip_address.setText(Connecter.ip_address);
+			ret_la_connectTime.setText(String.valueOf(Connecter.connectTime));
+			msgPanel.setVisible(true);
+		} else
+		{
+			JOptionPane.showMessageDialog(this, response_login, "登录失败",
+					JOptionPane.ERROR_MESSAGE);
+		}
+	}
 }
