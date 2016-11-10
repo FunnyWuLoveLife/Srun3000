@@ -15,7 +15,7 @@ public class Config implements Serializable
 	private boolean REM_PASSWORD = false; // 记住密码
 	private boolean AUTO_LOGIN = false; // 自动登录
 
-	public static final String verseion = "v2.1";
+	public static final String verseion = "v2.2";
 
 	private File file = null;
 

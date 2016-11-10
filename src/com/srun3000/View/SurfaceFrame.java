@@ -13,8 +13,8 @@ import java.awt.event.*;
  */
 public class SurfaceFrame extends JFrame {
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-	private static  int FRAME_WIDTH = 440; // 默认宽
-	private static  int FRAME_HEIGHT = 800;// 默然高
+	private static  int FRAME_WIDTH = 400; // 默认宽
+	private static  int FRAME_HEIGHT = 700;// 默然高
     private JTabbedPane tabbedPane = new JTabbedPane();
 
     /**
@@ -24,7 +24,7 @@ public class SurfaceFrame extends JFrame {
         setTitle("Srun300客户端-"+Config.getVerseion());//设置界面标题
         setSize(FRAME_WIDTH, FRAME_HEIGHT);//设置框架界面大小
         setResizable(false);
-        setLocation((int) (screenSize.width * 0.1), 10);
+        setLocation((int) (screenSize.width * 0.1), 100);
         setFont(new Font("宋体", Font.BOLD, 40));
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);//设置默认关闭方式
         tabbedPane.add("主页", new LoginComponent());

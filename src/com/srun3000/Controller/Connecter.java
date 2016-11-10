@@ -1,6 +1,7 @@
 package com.srun3000.Controller;
 
 import com.srun3000.Model.User;
+import com.srun3000.util.IPUtil;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -9,6 +10,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
+import java.net.UnknownHostException;
 
 /**
  * Created by xbc922 on 2016/8/13.
@@ -21,6 +23,7 @@ public class Connecter
 	private static String acid = "1";
 	private static String mac_address = "";
 	private static String port = "69";
+	private static String ServerIPAddress = "172.16.154.130";
 
 	// 回显信息
 	public static String account_name = "";
@@ -61,9 +64,8 @@ public class Connecter
 
 		try
 		{
-			response = HttpPost(
-					"http://172.16.154.130:" + port + "/cgi-bin/srun_portal",
-					data);// 执行post方法
+			response = HttpPost("http://" + ServerIPAddress + ":" + port
+					+ "/cgi-bin/srun_portal", data);// 执行post方法
 		} catch (Exception e)
 		{
 			response = e.toString();
@@ -80,6 +82,30 @@ public class Connecter
 			System.out.println("falied");
 			return response;
 		}
+	}
+
+	@SuppressWarnings("finally")
+	public static String[] getUserInfo()
+	{
+		String response = null;
+		String str[] = null;
+		try
+		{
+			String data = "?ip=" + IPUtil.getIP();
+			String url = "http://172.16.154.130:69/cgi-bin/rad_user_info";
+			response = HttpPost(url, data);
+			str = response.split(",");
+		} catch (UnknownHostException e)
+		{
+			e.printStackTrace();
+		} catch (Exception e)
+		{
+			e.printStackTrace();
+		} finally
+		{
+			return str;
+		}
+
 	}
 
 	public static String HttpPost(String url, String data) throws Exception
@@ -156,7 +182,8 @@ public class Connecter
 			urlencode_acid = URLEncoder.encode(acid, "utf-8");
 			urlencode_mac = URLEncoder.encode(mac_address, "utf-8");
 			response = HttpPost(
-					"http://172.16.154.130:" + port + "/cgi-bin/srun_portal",
+					"http://" + ServerIPAddress + ":" + port
+							+ "/cgi-bin/srun_portal",
 					"action=logout&ac_id=" + urlencode_acid + "&username="
 							+ urlencode_usr + "&mac=" + urlencode_mac
 							+ "&type=2");

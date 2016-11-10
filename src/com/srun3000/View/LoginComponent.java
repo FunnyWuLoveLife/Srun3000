@@ -3,7 +3,9 @@ package com.srun3000.View;
 import com.srun3000.Config;
 import com.srun3000.Controller.Connecter;
 import com.srun3000.Model.User;
+import com.srun3000.util.IPUtil;
 import com.srun3000.util.StringUtil;
+import com.srun3000.util.TimeUtil;
 
 import java.awt.Desktop;
 import java.awt.GridLayout;
@@ -12,6 +14,7 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.UnknownHostException;
 
 import javax.swing.*;
 
@@ -80,9 +83,9 @@ public class LoginComponent extends JPanel implements ActionListener
 		cb_rem_password = new JCheckBox("记住密码");
 		cb_auto_login = new JCheckBox("自动登录");
 		JButton serves = new JButton("自助服务");
-		cb_rem_password.setBounds(250, 40, 100, 20);
-		cb_auto_login.setBounds(250, 80, 100, 20);
-		serves.setBounds(250, 115, 100, 20);
+		cb_rem_password.setBounds(230, 40, 100, 20);
+		cb_auto_login.setBounds(230, 80, 100, 20);
+		serves.setBounds(230, 115, 100, 20);
 
 		btn_login = new JButton("登录");
 		btn_logout = new JButton("注销");
@@ -110,6 +113,8 @@ public class LoginComponent extends JPanel implements ActionListener
 		ret_la_connectTime.setBounds(110, 80, 120, 30);
 		msgPanel.add(la_ip_address);
 		msgPanel.add(la_connectTime);
+		msgPanel.add(ret_la_ip_address);
+		msgPanel.add(ret_la_connectTime);
 
 		msgPanel.setVisible(false);
 		add(loginPanel);
@@ -238,9 +243,18 @@ public class LoginComponent extends JPanel implements ActionListener
 		if (response_login.contains("success"))
 		{
 			JOptionPane.showMessageDialog(this, "登录成功！");
-			ret_la_ip_address.setText(Connecter.ip_address);
-			ret_la_connectTime.setText(String.valueOf(Connecter.connectTime));
-			msgPanel.setVisible(true);
+			try
+			{
+				Connecter.ip_address = IPUtil.getIP();
+				ret_la_ip_address.setText(Connecter.ip_address);
+				ret_la_connectTime.setText(TimeUtil
+						.Sec2Hr(Integer.valueOf(Connecter.getUserInfo()[7])));
+				msgPanel.setVisible(true);
+			} catch (UnknownHostException e)
+			{
+				e.printStackTrace();
+			}
+
 		} else
 		{
 			JOptionPane.showMessageDialog(this, response_login, "登录失败",
